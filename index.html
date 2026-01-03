@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aplikasi Catatan</title>
+  <meta name="description" content="Aplikasi catatan dengan tag, editor kaya, dan export/import">
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>/* tiny inline adjustments for CDN editor */
+    .ql-editor img{max-width:100%;height:auto}
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-left">
+    <div class="header-top">
+      <h1>Aplikasi Catatan</h1>
+      <p>Catatan — rich editor, tags, export/import</p>
+    </div>
+    <div class="header-search">
+      <input id="searchInput" placeholder="Cari catatan (judul atau isi)..." />
+      <select id="sortSelect">
+        <option value="updatedDesc">Terbaru</option>
+        <option value="updatedAsc">Terlama</option>
+        <option value="titleAsc">Judul A→Z</option>
+        <option value="titleDesc">Judul Z→A</option>
+      </select>
+    </div>
+  </div>
+  <div class="header-right">
+    <button id="themeToggle" title="Toggle theme">🌙</button>
+  </div>
+</header>
+
+<main class="app">
+
+  <aside class="sidebar">
+    <div class="tags-panel">
+      <div class="tags-header">
+        <h3>Tags</h3>
+        <button id="createTagBtn">+</button>
+      </div>
+      <div id="tagsList" class="tags-list"></div>
+      <div class="tag-filter-actions">
+        <button id="clearFilter">Clear Filter</button>
+        <button id="filterModeToggle">Mode: OR</button>
+      </div>
+    </div>
+    <div class="export-panel">
+      <h4>Export / Import</h4>
+      <button id="exportJson">Export JSON</button>
+      <button id="exportMd">Export Markdown</button>
+      <button id="exportPdf">Export PDF</button>
+      <input id="importFile" type="file" accept="application/json" style="display:none">
+      <button id="importBtn">Import JSON</button>
+    </div>
+  </aside>
+
+  <section class="editor-area">
+    <div class="note-meta">
+      <input type="text" id="title" placeholder="Judul catatan">
+      <div class="tag-select">
+        <input id="tagInput" placeholder="Tambahkan tag (ketik untuk saran)" />
+        <div id="tagSuggestions" class="suggestions"></div>
+        <div id="selectedTags" class="selected-tags"></div>
+      </div>
+    </div>
+
+    <div id="toolbar">
+      <span class="ql-formats">
+        <select class="ql-header">
+          <option value="1"></option>
+          <option value="2"></option>
+          <option value="3"></option>
+          <option value="4"></option>
+          <option value="5"></option>
+          <option value="6"></option>
+          <option selected></option>
+        </select>
+        <button class="ql-bold"></button>
+        <button class="ql-italic"></button>
+        <button class="ql-underline"></button>
+      </span>
+      <span class="ql-formats">
+        <button class="ql-list" value="ordered"></button>
+        <button class="ql-list" value="bullet"></button>
+        <button class="ql-code-block"></button>
+      </span>
+      <span class="ql-formats">
+        <button class="ql-image"></button>
+      </span>
+    </div>
+
+    <div id="editor" class="editor"></div>
+
+    <div class="editor-actions">
+      <div class="save-indicator" id="saveIndicator">Saved</div>
+      <button id="saveNote">Save Now</button>
+      <button id="deleteNote">Delete</button>
+    </div>
+  </section>
+
+  <aside class="note-list">
+    <h2>Daftar Catatan</h2>
+    <div class="note-list-controls">
+      <label><input type="checkbox" id="selectAllNotes"> Pilih semua</label>
+      <button id="bulkDelete">Hapus Terpilih</button>
+      <button id="bulkExport">Export Terpilih</button>
+      <button id="togglePreview">Preview</button>
+    </div>
+    <div id="notes"></div>
+  </aside>
+
+</main>
+
+<!-- Tag management modal -->
+<div id="tagModal" class="modal" aria-hidden="true">
+  <div class="modal-content">
+    <h3 id="tagModalTitle">Create Tag</h3>
+    <input id="tagName" placeholder="Nama tag">
+    <input id="tagColor" type="color" value="#ff4757">
+    <div class="modal-actions">
+      <button id="saveTag">Save</button>
+      <button id="cancelTag">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
+<script src="https://cdn.quilljs.com/1.3.7/quill.js"></script>
+<script src="https://unpkg.com/turndown/dist/turndown.js"></script>
+<script src="https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+
+<script src="assets/js/script.js"></script>
+<!-- Conflict resolution modal -->
+<div id="conflictModal" class="modal" aria-hidden="true">
+  <div class="modal-content">
+    <h3>Konflik perubahan</h3>
+    <p>Ada perubahan pada tab lain untuk catatan ini. Pilih aksi:</p>
+    <div class="conflict-actions">
+      <button id="keepMine">Keep Mine</button>
+      <button id="keepTheirs">Keep Theirs</button>
+      <button id="showMerge">Lihat Perbedaan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Preview modal -->
+<div id="previewModal" class="modal" aria-hidden="true">
+  <div class="modal-content preview-content">
+    <div id="previewArea"></div>
+    <div class="modal-actions"><button id="closePreview">Tutup</button></div>
+  </div>
+</div>
+</body>
+</html>
